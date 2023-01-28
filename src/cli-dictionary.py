@@ -33,17 +33,48 @@ def print_meanings(meaning, iter_num):
 
 	for idx, definition in enumerate(definitions, 1):
 		text = '\t[green]{}. {}[/green]'.format(idx, definition['definition'])
+
+		if definition.get('example', None):
+			text = text + '\n\t\texample: {}'.format(definition['example'])
+		if definition.get('synonyms', None):
+			text = text + '\n\t\tsynonyms: {}'.format(", ".join(definition['synonyms']))
+		if definition.get('antonyms', None):
+			text = text + '\n\t\tantonyms: {}'.format(", ".join(definition['antonyms']))
+
+		Printer.default_print(text)
+
+	if meaning.get('synonyms', None):
+		text = '\tsynonyms: {}'.format(', '.join(meaning['synonyms']))
+		Printer.default_print(text)
+
+	if meaning.get('antonyms', None):
+		text = '\tantonyms: {}'.format(', '.join(meaning['antonyms']))
 		Printer.default_print(text)
 
 
 def print_definition(url, sy, ex):
 	api = API(url)
+	print(url)
 	data = api.get_response()
 
-	# print(data)
+	try:
+		word = data[0]['word']
+	except:
+		Printer.default_print('[red]{}[/red]'.format(data))
+		return
+
+	if data[0].get('phonetic', None):
+		phonetic = data[0]['phonetic']
+	elif data[0].get('phonetics', None):
+		for _phonetic in data[0]['phonetics']:
+			if _phonetic.get('text', None):
+				phonetic = _phonetic['text']
+				break
+	else:
+		phonetic = '?'
+	Printer.default_print('[bold][white]{}: {}[/white][/bold]'.format(word, phonetic))
 
 	meanings = data[0]['meanings']
-
 	for index, meaning in enumerate(meanings, 1):
 		print_meanings(meaning, index)
 
